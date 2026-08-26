@@ -1,6 +1,6 @@
-# CircPePred
+# ISORFCLF
 
-A Novel Method for Predicting circRNA-encoded Peptides (circPEPs) using Class-imbalanced Learning Framework (CircPePred)
+A Novel Method for Identifying Small Open Reading Frames in Pri-miRNA using Class-imbalanced Learning Framework (ISORFCLF)
 
 It consists of two parts: feature representation and a class-imbalanced learning framework. 
 
