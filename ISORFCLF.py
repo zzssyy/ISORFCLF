@@ -12,8 +12,7 @@ from diffEntropy import entropy_with_metrics
 
 def ISORFCLF():
     
-    # tfile = "./datasets/train.fasta"
-    tfile = "E:\赵思远资料\赵思远资料\文献\PAMPred-main\CircPePred-mian\\dataset4\\train_dataset.txt"
+    tfile = "./datasets/train.fasta"
     
     posi_aas_samples, nega_aas_samples, aas_f_index, aas_f_name = data_processing.get_data(tfile, flag='sorfs')
     posi_aas_samples, nega_aas_samples = data_processing.conn_shuf_split_dataset(posi_aas_samples, nega_aas_samples)
