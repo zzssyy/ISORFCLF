@@ -12,6 +12,11 @@ Then, a class-imbalanced learning framework is to balance data, and complete the
 
 Python = 3.7
 
-scikit-learn
+# Usage
+data_processing.py is used for feature extraction and divide data
 
-numpy
+ensemble_learning.py is used to ensemble machine learning models
+
+ipso.py is used for updating weights for different models in ensemble learning
+
+ISORFCLF.py is used for identifying sORFs
