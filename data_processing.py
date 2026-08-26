@@ -11,6 +11,7 @@ from Bio import Seq, SeqIO
 from Maximum_Distance import run
 from imblearn.over_sampling import SMOTE
 from sklearn import preprocessing
+from Bio import Seq
 
 def ESKmer(fasta, k=1):
     NA = 'ACGT'
@@ -299,59 +300,60 @@ def GGAP(sequence, **kw):
 
 
 def QSOrder(sequence, nlag=5, w=0.1, **kw):
-	dataFile = './dataset/Schneider-Wrede.txt'
-	dataFile1 = './dataset/Grantham.txt'
+    path = 'E:/赵思远资料/赵思远资料/文献/PAMPred-main/CircPePred-mian'
+    dataFile = path + '/dataset/Schneider-Wrede.txt'
+    dataFile1 = path + '/dataset/Grantham.txt'
 
-	AA = 'ACDEFGHIKLMNPQRSTVWY'
-	AA1 = 'ARNDCQEGHILKMFPSTWYV'
+    AA = 'ACDEFGHIKLMNPQRSTVWY'
+    AA1 = 'ARNDCQEGHILKMFPSTWYV'
 
-	DictAA = {}
-	for i in range(len(AA)):
-		DictAA[AA[i]] = i
+    DictAA = {}
+    for i in range(len(AA)):
+        DictAA[AA[i]] = i
 
-	DictAA1 = {}
-	for i in range(len(AA1)):
-		DictAA1[AA1[i]] = i
+    DictAA1 = {}
+    for i in range(len(AA1)):
+        DictAA1[AA1[i]] = i
 
-	with open(dataFile) as f:
-		records = f.readlines()[1:]
-	AADistance = []
-	for i in records:
-		array = i.rstrip().split()[1:] if i.rstrip() != '' else None
-		AADistance.append(array)
-	AADistance = np.array(
+    with open(dataFile) as f:
+         records = f.readlines()[1:]
+    AADistance = []
+    for i in records:
+        array = i.rstrip().split()[1:] if i.rstrip() != '' else None
+        AADistance.append(array)
+    AADistance = np.array(
 		[float(AADistance[i][j]) for i in range(len(AADistance)) for j in range(len(AADistance[i]))]).reshape((20, 20))
 
-	with open(dataFile1) as f:
-		records = f.readlines()[1:]
-	AADistance1 = []
-	for i in records:
-		array = i.rstrip().split()[1:] if i.rstrip() != '' else None
-		AADistance1.append(array)
-	AADistance1 = np.array(
+    with open(dataFile1) as f:
+        records = f.readlines()[1:]
+    AADistance1 = []
+    for i in records:
+        array = i.rstrip().split()[1:] if i.rstrip() != '' else None
+        AADistance1.append(array)
+    AADistance1 = np.array(
 		[float(AADistance1[i][j]) for i in range(len(AADistance1)) for j in range(len(AADistance1[i]))]).reshape(
 		(20, 20))
 
-	code = []
-	arraySW = []
-	arrayGM = []
-	for n in range(1, nlag + 1):
-		arraySW.append(
+    code = []
+    arraySW = []
+    arrayGM = []
+    for n in range(1, nlag + 1):
+        arraySW.append(
 			sum([AADistance[DictAA[sequence[j]]][DictAA[sequence[j + n]]] ** 2 for j in range(len(sequence) - n)]))
-		arrayGM.append(sum(
+        arrayGM.append(sum(
 			[AADistance1[DictAA1[sequence[j]]][DictAA1[sequence[j + n]]] ** 2 for j in range(len(sequence) - n)]))
-	myDict = {}
-	for aa in AA1:
-		myDict[aa] = sequence.count(aa)
-	for aa in AA1:
-		code.append(myDict[aa] / (1 + w * sum(arraySW)))
-	for aa in AA1:
-		code.append(myDict[aa] / (1 + w * sum(arrayGM)))
-	for num in arraySW:
-		code.append((w * num) / (1 + w * sum(arraySW)))
-	for num in arrayGM:
-		code.append((w * num) / (1 + w * sum(arrayGM)))
-	return code
+    myDict = {}
+    for aa in AA1:
+        myDict[aa] = sequence.count(aa)
+    for aa in AA1:
+        code.append(myDict[aa] / (1 + w * sum(arraySW)))
+    for aa in AA1:
+        code.append(myDict[aa] / (1 + w * sum(arrayGM)))
+    for num in arraySW:
+        code.append((w * num) / (1 + w * sum(arraySW)))
+    for num in arrayGM:
+        code.append((w * num) / (1 + w * sum(arrayGM)))
+    return code
 
 
 def Rvalue(aa1, aa2, AADict, Matrix):
@@ -359,7 +361,7 @@ def Rvalue(aa1, aa2, AADict, Matrix):
 	
 
 def PAAC(sequence, lambdaValue=4, w=0.05, **kw):
-	dataFile = './dataset/PAAC.txt'
+	dataFile = "E:/赵思远资料/赵思远资料/文献/PAMPred-main/CircPePred-mian" + '/dataset/PAAC.txt'
 	with open(dataFile) as f:
 		records = f.readlines()
 	AA = ''.join(records[0].rstrip().split()[1:])
@@ -400,6 +402,89 @@ def PAAC(sequence, lambdaValue=4, w=0.05, **kw):
 	code = code + [(w * j) / (1 + w * sum(theta)) for j in theta]
 	return code
 
+def RNACTD(seq):
+    n=len(seq)
+    n=float(n)
+    num_A,num_T,num_G,num_C=0,0,0,0
+    AT_trans,AG_trans,AC_trans,TG_trans,TC_trans,GC_trans=0,0,0,0,0,0
+    for i in range(len(seq)-1):
+        if seq[i]=="A":
+            num_A=num_A+1
+        if seq[i]=="T":
+            num_T=num_T+1
+        if seq[i]=="G":
+            num_G=num_G+1
+        if seq[i]=="C":
+            num_C=num_C+1 
+        if (seq[i]=="A" and seq[i+1]=="T") or (seq[i]=="T" and seq[i+1]=="A"):
+            AT_trans=AT_trans+1
+        if (seq[i]=="A" and seq[i+1]=="G") or (seq[i]=="G" and seq[i+1]=="A"):
+            AG_trans=AG_trans+1
+        if (seq[i]=="A" and seq[i+1]=="C") or (seq[i]=="C" and seq[i+1]=="A"):
+            AC_trans=AC_trans+1
+        if (seq[i]=="T" and seq[i+1]=="G") or (seq[i]=="G" and seq[i+1]=="T"):
+            TG_trans=TG_trans+1
+        if (seq[i]=="T" and seq[i+1]=="C") or (seq[i]=="C" and seq[i+1]=="T"):
+            TC_trans=TC_trans+1
+        if (seq[i]=="G" and seq[i+1]=="C") or (seq[i]=="C" and seq[i+1]=="G"):
+            GC_trans=GC_trans+1
+
+    a,t,g,c=0,0,0,0
+    A0_dis,A1_dis,A2_dis,A3_dis,A4_dis=0.0,0.0,0.0,0.0,0.0
+    T0_dis,T1_dis,T2_dis,T3_dis,T4_dis=0.0,0.0,0.0,0.0,0.0
+    G0_dis,G1_dis,G2_dis,G3_dis,G4_dis=0.0,0.0,0.0,0.0,0.0
+    C0_dis,C1_dis,C2_dis,C3_dis,C4_dis=0.0,0.0,0.0,0.0,0.0
+    for i in range(len(seq)-1):
+        if seq[i]=="A":
+            a=a+1
+            if a == 1:
+                A0_dis=((i*1.0)+1)/n
+            if a == int(round(num_A/4.0)):
+                A1_dis=((i*1.0)+1)/n
+            if a == int(round(num_A/2.0)):
+                A2_dis=((i*1.0)+1)/n
+            if a == int(round((num_A*3/4.0))):
+                A3_dis=((i*1.0)+1)/n
+            if a == num_A:
+                A4_dis=((i*1.0)+1)/n
+        if seq[i]=="T":
+            t=t+1
+            if t == 1:
+                T0_dis=((i*1.0)+1)/n
+            if t == int(round(num_T/4.0)):
+                T1_dis=((i*1.0)+1)/n
+            if t == int(round((num_T/2.0))):
+                T2_dis=((i*1.0)+1)/n
+            if t == int(round((num_T*3/4.0))):
+                T3_dis=((i*1.0)+1)/n
+            if t == num_T:
+                T4_dis=((i*1.0)+1)/n
+        if seq[i]=="G":
+            g=g+1
+            if g == 1:
+                G0_dis=((i*1.0)+1)/n
+            if g == int(round(num_G/4.0)):
+                G1_dis=((i*1.0)+1)/n
+            if g == int(round(num_G/2.0)):
+                G2_dis=((i*1.0)+1)/n
+            if g == int(round(num_G*3/4.0)):
+                G3_dis=((i*1.0)+1)/n
+            if g == num_G:
+                G4_dis=((i*1.0)+1)/n
+        if seq[i]=="C":
+            c=c+1
+            if c == 1:
+                C0_dis=((i*1.0)+1)/n
+            if c == int(round(num_C/4.0)):
+                C1_dis=((i*1.0)+1)/n
+            if c == int(round(num_C/2.0)):
+                C2_dis=((i*1.0)+1)/n
+            if c == int(round(num_C*3/4.0)):
+                C3_dis=((i*1.0)+1)/n
+            if c == num_C:
+                C4_dis=((i*1.0)+1)/n
+    
+    return[num_A/n,num_T/n,num_G/n,num_C/n,AT_trans/(n-1),AG_trans/(n-1),AC_trans/(n-1),TG_trans/(n-1),TC_trans/(n-1),GC_trans/(n-1),A0_dis,A1_dis,A2_dis,A3_dis,A4_dis,T0_dis,T1_dis,T2_dis,T3_dis,T4_dis,G0_dis,G1_dis,G2_dis,G3_dis,G4_dis,C0_dis,C1_dis,C2_dis,C3_dis,C4_dis] 
 
 def CTDC_Count(seq1, seq2):
 	sum = 0
@@ -661,6 +746,7 @@ def get_aas(posi_file, nega_file, posi_file_name, nega_file_name):
 
 
 def get_sorfs_dataset(posi_file, nega_file):
+    
     posi_samples = []
     indexs = []
     fea_name = []
@@ -690,7 +776,11 @@ def get_sorfs_dataset(posi_file, nega_file):
                     num += len(ssm_fea)
                     indexs.append(num)
                     fea_name.append('ssm')
-                    posi_sample = es3mer_fea + es4mer_fea + es5mer_fea + ssm_fea + [1]
+                    ctd_fea = RNACTD(sequence)
+                    num += len(ctd_fea)
+                    indexs.append(num)
+                    fea_name.append('rnactd')
+                    posi_sample = es3mer_fea + es4mer_fea + es5mer_fea + ssm_fea + ctd_fea + [1]
                     posi_samples.append(posi_sample)
                     flag = False
                 else:
@@ -699,7 +789,8 @@ def get_sorfs_dataset(posi_file, nega_file):
                     es4mer_fea = ESKmer(sequence,k=4)
                     es5mer_fea = ESKmer(sequence,k=5)
                     ssm_fea = SSM(sequence)
-                    posi_sample = es3mer_fea + es4mer_fea + es5mer_fea + ssm_fea + [1]
+                    ctd_fea = RNACTD(sequence)
+                    posi_sample = es3mer_fea + es4mer_fea + es5mer_fea + ssm_fea + ctd_fea + [1]
                     posi_samples.append(posi_sample)
 
     nega_samples = []
@@ -714,7 +805,8 @@ def get_sorfs_dataset(posi_file, nega_file):
                 es4mer_fea = ESKmer(sequence,k=4)
                 es5mer_fea = ESKmer(sequence,k=5)
                 ssm_fea = SSM(sequence)
-                nega_sample = es3mer_fea + es4mer_fea + es5mer_fea + ssm_fea + [0]
+                ctd_fea = RNACTD(sequence)
+                nega_sample = es3mer_fea + es4mer_fea + es5mer_fea + ssm_fea + ctd_fea + [0]
                 nega_samples.append(nega_sample)
 
     # random.shuffle(posi_samples)
@@ -730,6 +822,107 @@ def get_sorfs_dataset(posi_file, nega_file):
     nega_samples = np.concatenate((nega_samples, nega_y[:,np.newaxis]), axis=1)
     return posi_samples, nega_samples, indexs, fea_name
 
+def get_combinedfea(cfile):
+    import pandas as pd
+    comfea = pd.read_csv(cfile, header=0)
+    comfea = comfea.values.tolist()
+    cheader = pd.read_csv(cfile, nrows=0)
+    confea_header = cheader.columns.tolist()
+    return comfea, confea_header
+
+def get_data(filepath, flag='aas'):
+    # posi_file, nega_file = "E:\赵思远资料\赵思远资料\文献\iAVP-RFVOT-main\iAVP-RFVOT-main\dataset\AVP_WHT_lenLessThan50AA.i30.train4kfold_p.fasta", "E:\赵思远资料\赵思远资料\文献\iAVP-RFVOT-main\iAVP-RFVOT-main\dataset\AVP_WHT_lenLessThan50AA.i30.train4kfold_n.fasta"
+    # posi_file, nega_file = "E:\赵思远资料\赵思远资料\文献\PredAPP-master\PredAPP-master\\datasets\\Training_p.fasta", "E:\赵思远资料\赵思远资料\文献\PredAPP-master\PredAPP-master\\datasets\\Training_n.fasta"
+    posi_file, nega_file = "E:\赵思远资料\赵思远资料\文献\PAMPred-main\CircPePred-mian\\dataset4\\Training_p.fasta", "E:\赵思远资料\赵思远资料\文献\PAMPred-main\CircPePred-mian\\dataset4\\Training_n.fasta"
+    
+    p_data = []
+    n_data = []
+    seqs = []
+    
+    if flag == "aas":
+        cfile = "E:\赵思远资料\赵思远资料\文献\iAVP-RFVOT-main\iAVP-RFVOT-main\\train_features_472D.csv"
+        comfea, comfname = get_combinedfea(cfile)
+        p_comfea = []
+        n_comfea = []
+        
+        for seq_record in SeqIO.parse(filepath, "fasta"):
+            seqs.append(['>' + seq_record.id.strip(), str(seq_record.seq).strip()]) 
+        
+        if len(comfea) < len(seqs):
+            for _ in range(len(seqs) - len(comfea)):
+                comfea.append([0]*472)
+        else:
+            comfea = comfea[:len(seqs)]
+            
+        for i in range(len(seqs)):
+            seq = seqs[i]
+            # tag = seq[0][:4]
+            name = seq[0]
+            tag = name.startswith('>') and name.find('_URS')
+            data = seq[0] + "\n" + seq[1] + "\n"
+            if tag != -1:
+                n_data.append(data)
+                n_comfea.append(comfea[i])
+            else:
+                p_data.append(data)
+                p_comfea.append(comfea[i])
+                
+            # seq = seqs[i]
+            # label = seq[0].split("|")[1]
+            # data = seq[0] + "\n" + seq[1] + "\n"
+            # if eval(label) == 1:
+            #     p_data.append(data)
+            #     p_comfea.append(comfea[i])
+            # else:
+            #     n_data.append(data)
+            #     n_comfea.append(comfea[i])
+        
+        with open(posi_file, "w") as fo:
+            fo.writelines(p_data)
+            fo.close()
+            
+        with open(nega_file, "w") as fo:
+            fo.writelines(n_data)
+            fo.close()
+        posi_samples, nega_samples, indexs, fea_name = get_aas_dataset(posi_file, nega_file)
+        p_comfea = np.array(p_comfea)
+        n_comfea = np.array(n_comfea)
+        
+        posi_y, nega_y = posi_samples[:,-1], nega_samples[:,-1]
+        
+        posi_samples = np.hstack((posi_samples[:, :-1], p_comfea))
+        nega_samples = np.hstack((nega_samples[:, :-1], n_comfea))
+        posi_samples = np.concatenate((posi_samples, posi_y[:,np.newaxis]), axis=1)
+        nega_samples = np.concatenate((nega_samples, nega_y[:,np.newaxis]), axis=1)
+        indexs.append(indexs[-1] + 472)
+        fea_name.append("comfea")
+        return posi_samples, nega_samples, indexs, fea_name, comfname
+    else:
+        for seq_record in SeqIO.parse(filepath, "fasta"):
+            seqs.append(['>' + seq_record.id.strip(), str(seq_record.seq).strip()]) 
+            
+        for i in range(len(seqs)):
+            seq = seqs[i]
+            # tag = seq[0][:4]
+            name = seq[0]
+            tag = name.startswith('>') and name.find('_URS')
+            data = seq[0] + "\n" + seq[1] + "\n"
+            if tag != -1:
+                n_data.append(data)
+            else:
+                p_data.append(data)
+        
+        with open(posi_file, "w") as fo:
+            fo.writelines(p_data)
+            fo.close()
+            
+        with open(nega_file, "w") as fo:
+            fo.writelines(n_data)
+            fo.close()
+            posi_samples, nega_samples, indexs, fea_name = get_sorfs_dataset(posi_file, nega_file)
+        return posi_samples, nega_samples, indexs, fea_name
+    
+    
 
 def get_aas_dataset(posi_file, nega_file):
     posi_samples = []
@@ -785,6 +978,7 @@ def get_aas_dataset(posi_file, nega_file):
                     indexs.append(num)
                     fea_name.append('ctd')
                     posi_sample = aac_fea + dpc_fea + cks_fea + asdc_fea + gga_fea + qso_fea + gtp_fea + paac_fea + ctd_fea + [1]
+                    # posi_sample = aac_fea + ctd_fea + [1]
                     # posi_sample = aac_fea + gga_fea + qso_fea + gtp_fea + paac_fea + ctd_fea + [1]
                     posi_samples.append(posi_sample)
                     flag = False
@@ -803,6 +997,7 @@ def get_aas_dataset(posi_file, nega_file):
                     d_fea = CTDD(sequence)
                     ctd_fea = c_fea + t_fea + d_fea
                     posi_sample = aac_fea + dpc_fea + cks_fea + asdc_fea + gga_fea + qso_fea + gtp_fea + paac_fea + ctd_fea + [1]
+                    # posi_sample = aac_fea + ctd_fea + [1]
                     # posi_sample = aac_fea + gga_fea + qso_fea + gtp_fea + paac_fea + ctd_fea + [1]
                     posi_samples.append(posi_sample)
 
@@ -827,6 +1022,7 @@ def get_aas_dataset(posi_file, nega_file):
                 d_fea = CTDD(sequence)
                 ctd_fea = c_fea + t_fea + d_fea
                 nega_sample = aac_fea + dpc_fea + cks_fea + asdc_fea + gga_fea + qso_fea + gtp_fea + paac_fea + ctd_fea + [0]
+                # nega_sample = aac_fea + ctd_fea + [0]
                 nega_samples.append(nega_sample)
 
 # 	random.shuffle(posi_samples)
@@ -842,17 +1038,24 @@ def get_aas_dataset(posi_file, nega_file):
     nega_samples = np.concatenate((nega_samples, nega_y[:,np.newaxis]), axis=1)
     return posi_samples, nega_samples, indexs, fea_name
 
-def conn_shuf_split_dataset(posi_sorfs_samples, nega_sorfs_samples, posi_aas_samples, nega_aas_samples):
-    sorfs_f_len = posi_sorfs_samples.shape[1]
-    posi_samples = np.hstack((posi_sorfs_samples, posi_aas_samples))
-    nega_samples = np.hstack((nega_sorfs_samples, nega_aas_samples))
-    random.shuffle(posi_samples)
-    random.shuffle(nega_samples)
-    posi_sorfs_samples, posi_aas_samples = posi_samples[:, :sorfs_f_len], posi_samples[:, sorfs_f_len:]
-    print(posi_sorfs_samples[:5])
-    nega_sorfs_samples, nega_aas_samples = nega_samples[:, :sorfs_f_len], nega_samples[:, sorfs_f_len:]
-    print(nega_sorfs_samples[:5])
-    return posi_sorfs_samples, nega_sorfs_samples, posi_aas_samples, nega_aas_samples
+
+def conn_shuf_split_dataset(posi_aas_samples, nega_aas_samples):
+    # random.shuffle(posi_aas_samples)
+    # random.shuffle(nega_aas_samples)
+    return posi_aas_samples, nega_aas_samples
+
+
+# def conn_shuf_split_dataset(posi_sorfs_samples, nega_sorfs_samples, posi_aas_samples, nega_aas_samples):
+#     sorfs_f_len = posi_sorfs_samples.shape[1]
+#     posi_samples = np.hstack((posi_sorfs_samples, posi_aas_samples))
+#     nega_samples = np.hstack((nega_sorfs_samples, nega_aas_samples))
+#     random.shuffle(posi_samples)
+#     random.shuffle(nega_samples)
+#     posi_sorfs_samples, posi_aas_samples = posi_samples[:, :sorfs_f_len], posi_samples[:, sorfs_f_len:]
+#     print(posi_sorfs_samples[:5])
+#     nega_sorfs_samples, nega_aas_samples = nega_samples[:, :sorfs_f_len], nega_samples[:, sorfs_f_len:]
+#     print(nega_sorfs_samples[:5])
+#     return posi_sorfs_samples, nega_sorfs_samples, posi_aas_samples, nega_aas_samples
 
 def resampling(posi_samples, nega_samples):
     X = np.vstack((posi_samples[:,:-1],nega_samples[:,:-1]))
@@ -875,7 +1078,24 @@ def feature_selection(posi_samples, nega_samples, feature_cate):
     X_new_y = np.concatenate((X_new, y[:,np.newaxis]), axis=1)
     posi_samples, nega_samples = X_new_y[np.where(y==1)[0]], X_new_y[np.where(y==0)[0]]
     return posi_samples[:m], nega_samples, Eachfeature
-	
+
+# #split by kmeans
+# def spliting_by_clustering(nega_train_data, group_num):
+# 	nega_train_data = np.array(nega_train_data)
+# 	kmeans = KMeans(n_clusters=group_num)
+# 	kmeans.fit(nega_train_data)
+# 	labels = kmeans.labels_
+# 	nega_new_train_data = {}
+# 	for i in range(group_num):
+# 		group_list = []
+# 		nega_new_train_data[i] = group_list
+# 		
+# 	count = 0
+# 	for label in labels:
+# 		nega_new_train_data[label].append(nega_train_data[count])
+# 		count = count + 1
+# 	return nega_new_train_data
+
 #split by different clustering methods
 
 def selective_addition_mechanism(nega_train_data):
@@ -917,12 +1137,25 @@ def spliting_by_clustering(nega_train_data, group_num, method="kmeans"):
         cluster = KMeans(n_clusters=group_num)
         cluster.fit(nega_train_data)
         labels = cluster.labels_
+        print(labels)
     if method == 'AgglomerativeClustering':
         cluster = AgglomerativeClustering(n_clusters=group_num)
         cluster.fit(nega_train_data)
         labels = cluster.labels_
+        print(labels)
+    if method == "DPC":
+        labels = DPC.DPC(nega_train_data, group_num)
+        print(labels)
+    if method == "HIAC":
+        for i in range(3):
+            nega_train_data = selective_addition_mechanism(nega_train_data)
+        cluster = KMeans(n_clusters=group_num)
+        cluster.fit(nega_train_data)
+        labels = cluster.labels_
+        print(labels)
     if method == "PEDP":
         labels = PEDP.PEDP(nega_train_data, group_num)
+        print(labels)
         
     nega_new_train_data = {}
     for i in range(group_num):
